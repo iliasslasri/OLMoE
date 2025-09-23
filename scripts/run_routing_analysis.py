@@ -190,6 +190,8 @@ if __name__=='__main__':
         model, tokenizer = load_dpo_model()
     elif model_name == "olmoe":
         model, tokenizer = load_model()
+    elif model_name == "custom4":
+        model, tokenizer = load_model()
 
     length = 2048
     for domain in tqdm(["tulu", "github_oss_with_stack", "arxiv", "c4", "b3g", "wikipedia"]):
