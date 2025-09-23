@@ -85,9 +85,19 @@ def load_model():
     DEVICE = "cuda"
     # Load user's local checkpoint
     model_path = "/weka/oe-training-default/sanjaya/flexolmo/checkpoints/OLMo2-7b-flex-base-merged-math-code-RT-experts-sft/step9537-hf"
-    model = AutoModelForCausalLM.from_pretrained(model_path, device_map='auto', token=token)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_path,
+        device_map='auto',
+        token=token,
+        trust_remote_code=True,
+    )
     model.eval()
-    tokenizer = AutoTokenizer.from_pretrained(model_path, token=token)
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_path,
+        token=token,
+        trust_remote_code=True,
+        use_fast=False,
+    )
     # Ensure expert metadata exists for aux loss calculation
     if not hasattr(model, "num_experts"):
         model.num_experts = 4
