@@ -83,9 +83,16 @@ def load_dpo_model():
 
 def load_model():
     DEVICE = "cuda"
-    model = OlmoeForCausalLM.from_pretrained("allenai/OLMoE-1B-7B-0924", token=token).to(DEVICE)
+    # Load user's local checkpoint
+    model_path = "/weka/oe-training-default/sanjaya/flexolmo/checkpoints/OLMo2-7b-flex-base-merged-math-code-RT-experts-sft/step9537-hf"
+    model = AutoModelForCausalLM.from_pretrained(model_path, device_map='auto', token=token)
     model.eval()
-    tokenizer = AutoTokenizer.from_pretrained("allenai/OLMoE-1B-7B-0924", token=token)
+    tokenizer = AutoTokenizer.from_pretrained(model_path, token=token)
+    # Ensure expert metadata exists for aux loss calculation
+    if not hasattr(model, "num_experts"):
+        model.num_experts = 4
+    if not hasattr(model, "num_experts_per_tok"):
+        model.num_experts_per_tok = 4
     return model, tokenizer
 
 def load_model_mistral():
@@ -138,6 +145,8 @@ def run_analysis(domain, model_name=None):
             exp_ids = np.stack([np.argsort(-logits, -1)[:, :2].tolist() for logits in router_logits], -1)
         elif model_name.startswith("olmoe"):
             exp_ids = np.stack([np.argsort(-logits, -1)[:, :8].tolist() for logits in router_logits], -1)
+        elif model_name == "custom4":
+            exp_ids = np.stack([np.argsort(-logits, -1)[:, :4].tolist() for logits in router_logits], -1)
         # 2048 tokens, 8 experts
         exp_ids_layer0 = exp_ids[:, :, 0]
         exp_ids_layer7 = exp_ids[:, :, 7]
@@ -171,7 +180,7 @@ def run_analysis(domain, model_name=None):
 name2finaldata = {"github_oss_with_stack": "github", "arxiv": "arxiv", "c4": "c4", "b3g": "book", "wikipedia": "wikipedia", "tulu": "tulu"}
 
 if __name__=='__main__':
-    model_name = "olmoe"
+    model_name = "custom4"
     print(model_name)
     if model_name == "mistral":
         model, tokenizer = load_model_mistral()
