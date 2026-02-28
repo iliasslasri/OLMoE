@@ -6,6 +6,19 @@ To download some of the data:
 wget -O data/wiki-001.json.gz "https://huggingface.co/datasets/allenai/OLMoE-mix-0924/resolve/main/data/wiki/wiki-0001.json.gz?download=true"
 ```
 
+To tokenize the data:
+
+```bash
+dolma tokens \
+--documents data \
+--destination part-0-00001.npy \
+--tokenizer.name_or_path 'allenai/gpt-neox-olmo-dolma-v1_5' \
+--max_size '2_147_483_648' \
+--seed 0 \
+--tokenizer.eos_token_id 50279 \
+--tokenizer.pad_token_id 1 \
+--processes 2
+```
 
 - Scaling laws for tiny models: https://arxiv.org/pdf/2507.17702v1
 
