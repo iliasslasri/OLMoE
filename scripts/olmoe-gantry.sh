@@ -2,7 +2,7 @@
 set -ex
 
 # Use the small debug config
-CONFIG_PATH=configs/debug/olmoe-small.yml
+CONFIG_PATH=configs/olmoe-small.yml
 ARGS='--save-overwrite --fsdp.sharding_strategy=FULL_SHARD'
 
 # Set environment variables for local execution

@@ -10,11 +10,11 @@ wandb:
   group: null
 
 model:
-  d_model: 512
+  d_model: 1024
   n_heads: 16
   n_layers: 16
   mlp_ratio: 1
-  weight_tying: false
+  weight_tying: true
   alibi: false
   rope: true
   flash_attention: true
@@ -103,11 +103,6 @@ max_grad_norm_ratio: null
 speed_monitor:
   window_size: 1
 
-eval_interval: 1000
-eval_subset_num_batches: 5
-device_eval_batch_size: ${device_train_microbatch_size}
-evaluators: [] # No evaluators for now to keep it simple
-
 data:
   pad_direction: right
   num_workers: 0
@@ -122,3 +117,25 @@ data:
       repetition_max_count: 32  
   paths:
     - /home/infres/lasri-22/OLMoE/part-0-00000.npy
+
+
+
+# evals
+eval_interval: 250
+eval_subset_num_batches: 10
+device_eval_batch_size: 1
+evaluators:
+  - label: hellaswag
+    type: downstream
+  - label: piqa
+    type: downstream
+  - label: arc_easy
+    type: downstream
+  - label: winogrande
+    type: downstream
+  - label: boolq
+    type: downstream
+  - label: mmlu_humanities
+    type: downstream
+
+

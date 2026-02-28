@@ -27,3 +27,16 @@ MoE Analysis:
 - Expert Co-activation
 - Domain specialization
 - Vocabulary specialization
+
+
+### Evaluation
+
+```bash
+python -m torch.distributed.run --nproc-per-node 2 \
+  OLMo/scripts/train.py configs/olmoe-small.yml \
+  --load_path=runs/olmoe-small-multigpu/step1000-tmp \
+  --eval_on_load \
+  --max_duration=0 \
+  --evaluators='[{label: hellaswag, type: downstream}, {label: piqa, type: downstream}, {label: arc_easy, type: downstream}]'
+
+```
