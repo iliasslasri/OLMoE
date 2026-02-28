@@ -3,3 +3,11 @@
 */.DS_Store
 */*/.DS_Store
 */*/*/.DS_Store
+/data/
+.gitignore
+runs/
+*.npy
+*.gz
+.env
+*.err
+*.out
