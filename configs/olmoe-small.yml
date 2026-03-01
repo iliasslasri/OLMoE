@@ -126,19 +126,19 @@ data:
 # evals
 eval_interval: 250
 eval_subset_num_batches: 10
-device_eval_batch_size: 1
-evaluators:
-  - label: hellaswag
-    type: downstream
-  - label: piqa
-    type: downstream
-  - label: arc_easy
-    type: downstream
-  - label: winogrande
-    type: downstream
-  - label: boolq
-    type: downstream
-  - label: mmlu_humanities
-    type: downstream
+device_eval_batch_size: ${device_train_microbatch_size}
+evaluators: []
+  # - label: hellaswag
+  #   type: downstream
+  # - label: piqa
+  #   type: downstream
+  # - label: arc_easy
+  #   type: downstream
+  # - label: winogrande
+  #   type: downstream
+  # - label: boolq
+  #   type: downstream
+  # - label: mmlu_humanities
+  #   type: downstream
 
 
