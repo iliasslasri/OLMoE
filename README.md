@@ -3,7 +3,7 @@
 # Data
 We train with the entire Wikipedia from Dolma 1 that is available at [HF OLMoE-mix-0924](https://huggingface.co/datasets/allenai/OLMoE-mix-0924), it's 3,689,204,525 tokens (3.689B).
 
-And we later add [pes2o-0000](https://huggingface.co/datasets/allenai/OLMoE-mix-0924/tree/main/data/pes2o) (STEM papers), which makes the total number of tokens: 
+And we later add [pes2o-0000](https://huggingface.co/datasets/allenai/OLMoE-mix-0924/tree/main/data/pes2o) (STEM papers), which makes the total number of tokens: 4.7B.
 
 To download some of the data:
 
@@ -68,7 +68,8 @@ python -m torch.distributed.run --nproc-per-node 2 \
 ```
 
 # Expert Granularity
-[OlMoE reports, Plot: Granularity](https://wandb.ai/ai2-llm/olmoe/reports/Plot-Granularity--Vmlldzo4OTIxOTE4)
+- AI2 trains for up to 130B tokens, the OLMoE-mix is 4.060T tokens.
+- [OlMoE reports, Plot: Granularity](https://wandb.ai/ai2-llm/olmoe/reports/Plot-Granularity--Vmlldzo4OTIxOTE4)
 
 Expert granularity defines the trade-off between having a few large experts versus many smaller experts while keeping the total active parameters constant.
 
@@ -102,3 +103,8 @@ Key Findings
   - 350M tokens is 1/10th of the total training data, and is not sufficient to get any good results on the evals.
   - Next step is to increase the dataset size, by including a part of the C4 dataset, see dataset section, and run for more than 24h (we want at least to train on 1B) that will take ~4 days on 2 GPUs, with the current model size of ~320M parameters.
   - We might also try to increase the model size.
+
+  - New run: ```iliass-lasri-team/olmoe-1/olmoe-sq_4096```
+    - starting from ```iliass-lasri-team/olmoe-1/a69zc1qq``` last checkpoint.
+    - Double the sequence length to 4096 tokens.
+    - 3.6B tokens to 4.7B tokens.

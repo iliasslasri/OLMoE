@@ -1,10 +1,10 @@
-run_name: olmoe-small-multigpu
+run_name: olmoe-sq_4096
 seed: 6198
 dry_run: false
-no_pre_train_checkpoint: true
+no_pre_train_checkpoint: false
 
 wandb:
-  name: olmoe-small-multigpu
+  name: ${run_name}
   project: olmoe-1
   entity: iliass-lasri-team
   group: null
@@ -29,7 +29,7 @@ model:
   activation_type: swiglu
   residual_dropout: 0.0
   embedding_dropout: 0.0
-  max_sequence_length: 2048
+  max_sequence_length: 4096
   vocab_size: 50280
   embedding_size: 50304
   eos_token_id: 0
@@ -40,7 +40,7 @@ model:
   init_cutoff_factor: 3
   moe_top_k: 2
   moe_num_experts: 8
-  moe_dropless: true
+  moe_dropless: true # all tokens are guaranteed to be processed, none are discarded due to expert capacity limits
   moe_mlp_impl: sparse
   moe_lbl_in_fp32: true
   moe_zloss_weight: 0.001
@@ -84,9 +84,11 @@ sharded_checkpointer: olmo_core
 save_interval_unsharded: null
 save_num_unsharded_checkpoints_to_keep: -1
 
-load_path: null
+load_path: runs/olmoe-small-multigpu/latest
 
 max_duration: 112585 # 1 epoch over ~1.25B tokens
+time_limit: 84600  # 23h30m in seconds
+extra_steps_after_cancel: 0
 global_train_batch_size: 16
 device_train_microbatch_size: 1
 
@@ -117,28 +119,66 @@ data:
       repetition_min_period: 1
       repetition_max_count: 32  
   paths:
-    - /home/infres/lasri-22/OLMoE/data_all/part-0-00000.npy
-    - /home/infres/lasri-22/OLMoE/data_all/part-0-00001.npy
-    - /home/infres/lasri-22/OLMoE/data_all/part-0-00002.npy
-
+    - /home/infres/lasri-22/OLMoE/data/part-0-00000.npy
+    - /home/infres/lasri-22/OLMoE/data/part-0-00001.npy
+    - /home/infres/lasri-22/OLMoE/data/part-0-00002.npy
+    - /home/infres/lasri-22/OLMoE/data/pes2o-0000.npy
 
 
 # evals
-eval_interval: 250
-eval_subset_num_batches: 10
+eval_interval: 1000 # steps
+eval_subset_num_batches: 100
 device_eval_batch_size: ${device_train_microbatch_size}
-evaluators: []
-  # - label: hellaswag
-  #   type: downstream
-  # - label: piqa
-  #   type: downstream
-  # - label: arc_easy
-  #   type: downstream
-  # - label: winogrande
-  #   type: downstream
-  # - label: boolq
-  #   type: downstream
-  # - label: mmlu_humanities
-  #   type: downstream
+evaluators:
+  - label: hellaswag
+    type: downstream
+  
+  - label: piqa
+    type: downstream
+  
+  - label: arc_easy
+    type: downstream
+  
+  - label: winogrande
+    type: downstream
+  
+  - label: boolq
+    type: downstream
+  
+  - label: mmlu_stem_var
+    type: downstream
+
+  - label: mmlu_humanities_var
+    type: downstream
+
+  - label: mmlu_social_sciences_var
+    type: downstream
+
+  - label: mmlu_other_var
+    type: downstream
+
+  - label: mmlu_stem_mc_5shot
+    type: downstream
+
+  - label: mmlu_humanities_mc_5shot
+    type: downstream
+
+  - label: mmlu_social_sciences_mc_5shot
+    type: downstream
+
+  - label: mmlu_other_mc_5shot
+    type: downstream
+
+  - label: mmlu_stem_mc_5shot_test
+    type: downstream
+
+  - label: mmlu_humanities_mc_5shot_test
+    type: downstream
+
+  - label: mmlu_social_sciences_mc_5shot_test
+    type: downstream
+
+  - label: mmlu_other_mc_5shot_test
+    type: downstream
 
 
