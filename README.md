@@ -3,6 +3,8 @@
 # Data
 We train with the entire Wikipedia from Dolma 1 that is available at [HF OLMoE-mix-0924](https://huggingface.co/datasets/allenai/OLMoE-mix-0924), it's 3,689,204,525 tokens (3.689B).
 
+And we later add [pes2o-0000](https://huggingface.co/datasets/allenai/OLMoE-mix-0924/tree/main/data/pes2o) (STEM papers), which makes the total number of tokens: 
+
 To download some of the data:
 
 ```bash
@@ -21,8 +23,8 @@ To tokenize the data:
 
 ```bash
 dolma tokens \
---documents data \
---destination part-0-00001.npy \
+--documents data/pes2o-0000.json.gz \
+--destination data_all/pes2o-0000.npy \
 --tokenizer.name_or_path 'allenai/gpt-neox-olmo-dolma-v1_5' \
 --max_size '2_147_483_648' \
 --seed 0 \
@@ -90,3 +92,13 @@ The authors compared three primary configurations of experts per MoE layer:
 | 64 Experts    | x         | x          | x       | x     |
 
 Key Findings
+
+
+# Timeline
+
+- 2026-03-01 run ```iliass-lasri-team/olmoe-1/a69zc1qq```.
+  - 24h training on 2 GPUs yields ~11k steps (350M tokens)
+  - The training converges to a perplexity of ~20-30 range on the training set.
+  - 350M tokens is 1/10th of the total training data, and is not sufficient to get any good results on the evals.
+  - Next step is to increase the dataset size, by including a part of the C4 dataset, see dataset section, and run for more than 24h (we want at least to train on 1B) that will take ~4 days on 2 GPUs, with the current model size of ~320M parameters.
+  - We might also try to increase the model size.
