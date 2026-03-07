@@ -1,4 +1,6 @@
 
+# Papers
+OLMoE: [OLMoE technical paper](https://arxiv.org/abs/2409.02060)
 
 # Data
 We train with the entire Wikipedia from Dolma 1 that is available at [HF OLMoE-mix-0924](https://huggingface.co/datasets/allenai/OLMoE-mix-0924), it's 3,689,204,525 tokens (3.689B).
@@ -18,6 +20,10 @@ wget -O data/c4-train.00000-of-01024.json.gz "https://huggingface.co/datasets/al
 wget -O data/c4-train.00001-of-01024.json.gz "https://huggingface.co/datasets/allenai/c4/resolve/main/en/c4-train.00001-of-01024.json.gz?download=true"
 ```
 
+check memory usage:
+```bash
+srun --jobid=744464 --overlap nvidia-smi
+```
 
 To tokenize the data:
 
@@ -69,7 +75,7 @@ python -m torch.distributed.run --nproc-per-node 2 \
 
 # Expert Granularity
 - AI2 trains for up to 130B tokens, the OLMoE-mix is 4.060T tokens.
-- [OlMoE reports, Plot: Granularity](https://wandb.ai/ai2-llm/olmoe/reports/Plot-Granularity--Vmlldzo4OTIxOTE4)
+- Compare our plot with: [OlMoE reports, Plot: Granularity](https://wandb.ai/ai2-llm/olmoe/reports/Plot-Granularity--Vmlldzo4OTIxOTE4)
 
 Expert granularity defines the trade-off between having a few large experts versus many smaller experts while keeping the total active parameters constant.
 
@@ -108,3 +114,9 @@ Key Findings
     - starting from ```iliass-lasri-team/olmoe-1/a69zc1qq``` last checkpoint.
     - Double the sequence length to 4096 tokens.
     - 3.6B tokens to 4.7B tokens.
+  
+- 2026-03-07 run ```iliass-lasri-team/olmoe-1/olmoe-sq_4096```
+  - run path: ```iliass-lasri-team/olmoe-1/ce2uabgs```
+  - from scratch (no checkpoint)
+  - x5 throughput compared to previous run.
+

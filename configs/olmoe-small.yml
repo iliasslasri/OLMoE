@@ -1,7 +1,8 @@
 run_name: olmoe-sq_4096
 seed: 6198
 dry_run: false
-no_pre_train_checkpoint: false
+no_pre_train_checkpoint: true
+load_path: null # runs/olmoe-small-multigpu/latest
 
 wandb:
   name: ${run_name}
@@ -84,7 +85,6 @@ sharded_checkpointer: olmo_core
 save_interval_unsharded: null
 save_num_unsharded_checkpoints_to_keep: -1
 
-load_path: runs/olmoe-small-multigpu/latest
 
 max_duration: 112585 # 1 epoch over ~1.25B tokens
 time_limit: 84600  # 23h30m in seconds
