@@ -120,3 +120,5 @@ Key Findings
   - from scratch (no checkpoint)
   - x5 throughput compared to previous run.
 
+- 2026-03-08
+  - cfg like last run, with 32 experts (top-4).
