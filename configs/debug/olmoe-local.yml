@@ -111,4 +111,4 @@ data:
   persistent_workers: false
   timeout: 0
   paths:
-    - /home/tristan/Documents/MVA/Courses/Semester_2/Distrubuted_training_large_models/OLMoE/data/tokenized/part-0-00000.npy
+    - /kaggle/input/tristanmartin22/olmoe_dataset/part-0-00000.npy
