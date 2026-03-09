@@ -89,7 +89,10 @@ global_train_batch_size: 2
 device_train_microbatch_size: 2
 
 precision: fp32
-distributed_strategy: null
+distributed_strategy: fsdp
+fsdp:
+  sharding_strategy: FULL_SHARD
+  use_orig_params: true
 
 max_grad_norm: 1.0
 max_grad_norm_ratio: null
