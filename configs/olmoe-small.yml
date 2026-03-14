@@ -98,7 +98,7 @@ distributed_strategy: fsdp
 fsdp:
   wrapping_strategy: by_block
   precision: mixed
-  sharding_strategy: FULL_SHARD
+  sharding_strategy: SHARD_GRAD_OP
 
 max_grad_norm: 1.0
 max_grad_norm_ratio: null
