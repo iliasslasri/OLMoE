@@ -10,7 +10,7 @@ ARGS='--save-overwrite --fsdp.sharding_strategy=FULL_SHARD'
 export OMP_NUM_THREADS=8
 export OLMO_TASK=model
 export PYTHONNOUSERSITE=1
-export PYTHONPATH=$(pwd)/OLMo:$PYTHONPATH
+export PYTHONPATH=$(pwd)/OLMo
 export WANDB_MODE=${WANDB_MODE:-offline}
 
 # Run with torchrun on a single node using the olmoe environment

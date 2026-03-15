@@ -11,3 +11,5 @@ runs/
 .env
 *.err
 *.out
+*.log
+*.csv

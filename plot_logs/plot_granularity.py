@@ -122,6 +122,7 @@ for i, ax in enumerate(axes.flatten()):
 
     if i < 1:
       ax.yaxis.set_major_formatter(plt.FormatStrFormatter('%.1f'))
+      ax.set_ylim(top=3.5)
     else:
       ax.yaxis.set_major_formatter(plt.FormatStrFormatter('%.0f'))
 
