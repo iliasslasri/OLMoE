@@ -25,11 +25,12 @@ export TORCH_CUDA_ARCH_LIST="8.6"
 # Set WANDB API key if available
 export WANDB_MODE=online
 export WANDB_API_KEY=$(grep WANDB_API_KEY .env 2>/dev/null | cut -d '=' -f 2)
+export HUGGINGFACE_HUB_TOKEN=$(grep HF_TOKEN .env 2>/dev/null | cut -d '=' -f 2)
 
 pip install -U "huggingface_hub[cli]"
 # Download tokenized data directly
 mkdir -p data
-hf download --repo-type dataset iliasslasri/tokenized-OLMoE-mix --include "*.npy" --local-dir data/
+HUGGINGFACE_HUB_TOKEN="$HUGGINGFACE_HUB_TOKEN" hf download --repo-type dataset iliasslasri/tokenized-OLMoE-mix --include "*.npy" --local-dir data/
 git submodule update --init --recursive
 cd OLMo
 pip install -e .
