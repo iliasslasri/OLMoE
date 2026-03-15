@@ -1,5 +1,4 @@
 #!/bin/bash
-# Install Miniconda if not present
 if [ ! -d "$HOME/miniconda3" ]; then
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
     bash miniconda.sh -b -p $HOME/miniconda3
@@ -12,12 +11,16 @@ export PATH="$HOME/miniconda3/bin:$PATH"
 if ! conda env list | grep -q olmoe; then
     conda create -y -n olmoe python=3.10
 fi
-source ~/miniconda3/bin/activate
+source "$HOME/miniconda3/etc/profile.d/conda.sh"
 conda activate olmoe
+PYTHON="$CONDA_PREFIX/bin/python"
 
 # Install dependencies
-pip install --upgrade pip
-pip install wandb torchmetrics datasets scikit-learn safetensors msgspec ninja
+"$PYTHON" -m pip install --upgrade pip
+"$PYTHON" -m pip install wandb torchmetrics datasets scikit-learn safetensors msgspec ninja
+
+# Install a compatible PyTorch version first
+"$PYTHON" -m pip install --index-url https://download.pytorch.org/whl/cu121 torch==2.3.1+cu121
 
 # Install CUDA-specific packages
 export TORCH_CUDA_ARCH_LIST="8.6"
@@ -27,18 +30,17 @@ export WANDB_MODE=online
 export WANDB_API_KEY=$(grep WANDB_API_KEY .env 2>/dev/null | cut -d '=' -f 2)
 export HUGGINGFACE_HUB_TOKEN=$(grep HF_TOKEN .env 2>/dev/null | cut -d '=' -f 2)
 
-pip install -U "huggingface_hub[cli]"
+"$PYTHON" -m pip install -U huggingface_hub
 # Download tokenized data directly
 mkdir -p data
 HUGGINGFACE_HUB_TOKEN="$HUGGINGFACE_HUB_TOKEN" hf download --repo-type dataset iliasslasri/tokenized-OLMoE-mix --include "*.npy" --local-dir data/
 git submodule update --init --recursive
 cd OLMo
-pip install -e .
+"$PYTHON" -m pip install -e .
 cd ..
-pip install git+https://github.com/Muennighoff/megablocks.git@olmoe
+"$PYTHON" -m pip install git+https://github.com/Muennighoff/megablocks.git@olmoe
 
 pip cache purge
-conda clean --all -y
 
 # Set PyTorch distributed environment variables (example for single node, 1 GPU)
 export RANK=0
@@ -47,5 +49,5 @@ export LOCAL_RANK=0
 export MASTER_ADDR=localhost
 export MASTER_PORT=12355
 
-# Launch your training job (edit as needed)
+# Launch your training job
 python OLMo/scripts/train.py configs/olmoe-dense.yml
