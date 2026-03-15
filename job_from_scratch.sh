@@ -15,12 +15,26 @@ source "$HOME/miniconda3/etc/profile.d/conda.sh"
 conda activate olmoe
 PYTHON="$CONDA_PREFIX/bin/python"
 
+# Use workspace for temp/cache to avoid filling root
+mkdir -p /workspace/tmp /workspace/pip-cache
+export TMPDIR=/workspace/tmp
+export PIP_CACHE_DIR=/workspace/pip-cache
+export PIP_NO_CACHE_DIR=1
+
+# Clean early to free space
+pip cache purge
+conda clean --all -y
+
 # Install dependencies
 "$PYTHON" -m pip install --upgrade pip
-"$PYTHON" -m pip install wandb torchmetrics datasets scikit-learn safetensors msgspec ninja
+"$PYTHON" -m pip install --no-cache-dir wandb torchmetrics datasets scikit-learn safetensors msgspec ninja
 
 # Install a compatible PyTorch version first
-"$PYTHON" -m pip install --index-url https://download.pytorch.org/whl/cu121 torch==2.3.1+cu121
+"$PYTHON" -m pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cu121 torch==2.3.1+cu121
+"$PYTHON" - <<'PY'
+import torch
+print("torch:", torch.__version__)
+PY
 
 # Install CUDA-specific packages
 export TORCH_CUDA_ARCH_LIST="8.6"
@@ -40,8 +54,6 @@ cd OLMo
 cd ..
 "$PYTHON" -m pip install git+https://github.com/Muennighoff/megablocks.git@olmoe
 
-pip cache purge
-
 # Set PyTorch distributed environment variables (example for single node, 1 GPU)
 export RANK=0
 export WORLD_SIZE=1
@@ -50,4 +62,4 @@ export MASTER_ADDR=localhost
 export MASTER_PORT=12355
 
 # Launch your training job
-python OLMo/scripts/train.py configs/olmoe-dense.yml
+"$PYTHON" OLMo/scripts/train.py configs/olmoe-dense.yml
