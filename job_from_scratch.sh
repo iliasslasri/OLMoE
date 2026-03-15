@@ -21,55 +21,30 @@ pip install wandb torchmetrics datasets scikit-learn safetensors msgspec ninja
 
 # Install CUDA-specific packages
 export TORCH_CUDA_ARCH_LIST="8.6"
-pip uninstall stanford-stk megablocks -y
-pip install stanford-stk --no-binary stanford-stk --force-reinstall --no-cache-dir
-pip install megablocks --no-binary megablocks --force-reinstall --no-cache-dir
 
 # Set WANDB API key if available
 export WANDB_MODE=online
-export WANDB_API_KEY=$(grep WANDB_API_KEY ~/.env 2>/dev/null | cut -d '=' -f 2)
+export WANDB_API_KEY=$(grep WANDB_API_KEY .env 2>/dev/null | cut -d '=' -f 2)
 
-# Download and tokenize data, then delete original
-mkdir -p data data_all
-
-# Install OLMo package and dolma
+pip install -U "huggingface_hub[cli]"
+# Download tokenized data directly
+mkdir -p data
+hf download --repo-type dataset iliasslasri/tokenized-OLMoE-mix --include "*.npy" --local-dir data/
 git submodule update --init --recursive
 cd OLMo
 pip install -e .
-pip install dolma
 cd ..
+pip install git+https://github.com/Muennighoff/megablocks.git@olmoe
 
-for file in wiki-001 c4-train.00000-of-01024 c4-train.00001-of-01024; do
-    case $file in
-        wiki-001)
-            url="https://huggingface.co/datasets/allenai/OLMoE-mix-0924/resolve/main/data/wiki/wiki-0001.json.gz?download=true"
-            ;;
-        pes2o-0000)
-            url="https://huggingface.co/datasets/allenai/OLMoE-mix-0924/resolve/main/data/pes2o/pes2o-0000.json.gz?download=true"
-            ;;
-        c4-train.00000-of-01024)
-            url="https://huggingface.co/datasets/allenai/c4/resolve/main/en/c4-train.00000-of-01024.json.gz?download=true"
-            ;;
-        c4-train.00001-of-01024)
-            url="https://huggingface.co/datasets/allenai/c4/resolve/main/en/c4-train.00001-of-01024.json.gz?download=true"
-            ;;
-    esac
+pip cache purge
+conda clean --all -y
 
-    wget -O data/${file}.json.gz "$url"
-
-    dolma tokens \
-    --documents data/${file}.json.gz \
-    --destination data_all/${file}.npy \
-    --tokenizer.name_or_path 'allenai/gpt-neox-olmo-dolma-v1_5' \
-    --max_size '2_147_483_648' \
-    --seed 0 \
-    --tokenizer.eos_token_id 50279 \
-    --tokenizer.pad_token_id 1 \
-    --processes 2
-
-    rm data/${file}.json.gz
-done
-
+# Set PyTorch distributed environment variables (example for single node, 1 GPU)
+export RANK=0
+export WORLD_SIZE=1
+export LOCAL_RANK=0
+export MASTER_ADDR=localhost
+export MASTER_PORT=12355
 
 # Launch your training job (edit as needed)
-python OLMo/scripts/train.py configs/olmoe-small.yml
+python OLMo/scripts/train.py configs/olmoe-dense.yml
