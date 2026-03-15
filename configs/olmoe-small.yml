@@ -1,4 +1,4 @@
-run_name: olmoe-sq_4096
+run_name: shared-32exp4
 seed: 6198
 dry_run: false
 no_pre_train_checkpoint: true
@@ -39,8 +39,9 @@ model:
   init_fn: normal
   init_std: 0.02
   init_cutoff_factor: 3
-  moe_top_k: 2
-  moe_num_experts: 8
+  moe_top_k: 3
+  moe_shared_expert: true
+  moe_num_experts: 32
   moe_dropless: true # all tokens are guaranteed to be processed, none are discarded due to expert capacity limits
   moe_mlp_impl: sparse
   moe_lbl_in_fp32: true
@@ -69,6 +70,8 @@ scheduler:
   t_max: 112585
   alpha_f: 0.1
 
+activation_checkpointing: fine_grained
+
 tokenizer:
   identifier: tokenizers/allenai_gpt-neox-olmo-dolma-v1_5.json
   truncate_direction: right
@@ -77,7 +80,7 @@ save_folder: runs/${run_name}
 remote_save_folder: null
 save_overwrite: true
 
-save_interval: 1000
+save_interval: 26000 #1000
 save_interval_ephemeral: null
 save_num_checkpoints_to_keep: 1
 sharded_checkpointer: olmo_core
@@ -93,12 +96,16 @@ global_train_batch_size: 16
 device_train_microbatch_size: 1
 
 precision: amp_bf16
-distributed_strategy: fsdp
+distributed_strategy: ddp
+
+ddp:
+  grad_sync_mode: batch
+  find_unused_params: false
 
 fsdp:
   wrapping_strategy: by_block
   precision: mixed
-  sharding_strategy: FULL_SHARD
+  sharding_strategy: NO_SHARD
 
 max_grad_norm: 1.0
 max_grad_norm_ratio: null
@@ -119,10 +126,9 @@ data:
       repetition_min_period: 1
       repetition_max_count: 32  
   paths:
-    - /home/infres/lasri-22/OLMoE/data/part-0-00000.npy
-    - /home/infres/lasri-22/OLMoE/data/part-0-00001.npy
-    - /home/infres/lasri-22/OLMoE/data/part-0-00002.npy
-    - /home/infres/lasri-22/OLMoE/data/pes2o-0000.npy
+    - data/part-0-00000.npy
+    - data/part-0-00001.npy
+    - data/part-0-00002.npy
 
 
 # evals

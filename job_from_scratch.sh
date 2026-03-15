@@ -62,4 +62,4 @@ export MASTER_ADDR=localhost
 export MASTER_PORT=12355
 
 # Launch your training job
-"$PYTHON" OLMo/scripts/train.py configs/olmoe-dense.yml
+"$PYTHON" OLMo/scripts/train.py configs/olmoe-small.yml
