@@ -1,4 +1,4 @@
-run_name: olmoe-sq_4096
+run_name: 64exp8
 seed: 6198
 dry_run: false
 no_pre_train_checkpoint: true
@@ -39,8 +39,8 @@ model:
   init_fn: normal
   init_std: 0.02
   init_cutoff_factor: 3
-  moe_top_k: 2
-  moe_num_experts: 8
+  moe_top_k: 8
+  moe_num_experts: 64
   moe_dropless: true # all tokens are guaranteed to be processed, none are discarded due to expert capacity limits
   moe_mlp_impl: sparse
   moe_lbl_in_fp32: true
@@ -58,8 +58,8 @@ optimizer:
   decay_norm_and_bias: true
   decay_embeddings: true
   betas:
-  - 0.9
-  - 0.95
+    - 0.9
+    - 0.95
   metrics_log_interval: 10
 
 scheduler:
@@ -69,6 +69,8 @@ scheduler:
   t_max: 112585
   alpha_f: 0.1
 
+activation_checkpointing: fine_grained
+
 tokenizer:
   identifier: tokenizers/allenai_gpt-neox-olmo-dolma-v1_5.json
   truncate_direction: right
@@ -77,7 +79,7 @@ save_folder: runs/${run_name}
 remote_save_folder: null
 save_overwrite: true
 
-save_interval: 1000
+save_interval: 26000 #1000
 save_interval_ephemeral: null
 save_num_checkpoints_to_keep: 1
 sharded_checkpointer: olmo_core
@@ -85,9 +87,8 @@ sharded_checkpointer: olmo_core
 save_interval_unsharded: null
 save_num_unsharded_checkpoints_to_keep: -1
 
-
 max_duration: 112585 # 1 epoch over ~1.25B tokens
-time_limit: 84600  # 23h30m in seconds
+time_limit: 84600 # 23h30m in seconds
 extra_steps_after_cancel: 0
 global_train_batch_size: 16
 device_train_microbatch_size: 1
@@ -115,15 +116,11 @@ data:
   persistent_workers: false # Disable persistent workers for num_workers=0
   timeout: 0
   instance_filter:
-      repetition_max_period: 13
-      repetition_min_period: 1
-      repetition_max_count: 32  
+    repetition_max_period: 13
+    repetition_min_period: 1
+    repetition_max_count: 32
   paths:
-    - /home/infres/lasri-22/OLMoE/data/part-0-00000.npy
-    - /home/infres/lasri-22/OLMoE/data/part-0-00001.npy
-    - /home/infres/lasri-22/OLMoE/data/part-0-00002.npy
-    - /home/infres/lasri-22/OLMoE/data/pes2o-0000.npy
-
+    - data/tokenized/wiki-0000.npy/part-0-00000.npy
 
 # evals
 eval_interval: 1000 # steps
@@ -132,19 +129,19 @@ device_eval_batch_size: ${device_train_microbatch_size}
 evaluators:
   - label: hellaswag
     type: downstream
-  
+
   - label: piqa
     type: downstream
-  
+
   - label: arc_easy
     type: downstream
-  
+
   - label: winogrande
     type: downstream
-  
+
   - label: boolq
     type: downstream
-  
+
   - label: mmlu_stem_var
     type: downstream
 
@@ -180,5 +177,3 @@ evaluators:
 
   - label: mmlu_other_mc_5shot_test
     type: downstream
-
-
