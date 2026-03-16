@@ -5,7 +5,7 @@ import wandb
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import numpy as np
+import re
 import sys
 from pathlib import Path
 
@@ -139,8 +139,6 @@ if loss_key is None or throughput_key is None:
 # ---------------------------------------------------------------------------
 # Download histories (with local parquet cache)
 # ---------------------------------------------------------------------------
-CACHE_DIR.mkdir(parents=True, exist_ok=True)
-
 data = {}
 for name in RUN_NAMES:
     cache_path = CACHE_DIR / f"{name}.parquet"
@@ -184,9 +182,8 @@ def compute_maxvio_from_tokens(df: pd.DataFrame) -> dict | None:
 
     Returns dict with keys 'avg', 'max', 'min' (each a pd.Series), or None.
     """
-    import re as _re
     # Discover layer/expert structure
-    pattern = _re.compile(r"train/TokensTotal/layer(\d+)/expert(\d+)")
+    pattern = re.compile(r"train/TokensTotal/layer(\d+)/expert(\d+)")
     cols_by_layer: dict[int, list[str]] = {}
     for c in df.columns:
         m = pattern.match(c)
