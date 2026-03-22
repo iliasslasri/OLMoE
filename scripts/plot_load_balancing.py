@@ -14,11 +14,10 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 PROJECT = "olmoe-1"
 RUN_NAMES = [
-    "loss_free_balancing",
-    "random_balancing",
-    "load_balancing_alpha_0.01",
-    "load_balancing_alpha_0.001",
-    "run-1-maxVio",
+    "random_balancing_24H",
+    "load_balancing_u0.001_24H",
+    "loss_free_balancing_sigmoid_u0.01_24H",
+    "load_balancing_u0.01_24H",
 ]
 SMOOTH_WINDOW = 100
 OUT_PATH = "load_balancing_comparison.png"
@@ -26,19 +25,17 @@ CACHE_DIR = Path("scripts/.wandb_cache")
 
 # Pretty labels for legend
 LABELS = {
-    "loss_free_balancing": "Loss-Free Balancing",
-    "random_balancing": "Random Balancing",
-    "load_balancing_alpha_0.01": r"Load Balancing ($\alpha=0.01$)",
-    "load_balancing_alpha_0.001": r"Load Balancing ($\alpha=0.001$)",
-    "run-1-maxVio": "Loss-Free (MaxVio run)",
+    "random_balancing_24H": "Random Balancing",
+    "load_balancing_u0.001_24H": "Load Balancing (μ=0.001)",
+    "loss_free_balancing_sigmoid_u0.01_24H": "Loss-Free Sigmoid (μ=0.01)",
+    "load_balancing_u0.01_24H": "Load Balancing (μ=0.01)",
 }
 
 COLORS = {
-    "loss_free_balancing": "#1f77b4",
-    "random_balancing": "#ff7f0e",
-    "load_balancing_alpha_0.01": "#2ca02c",
-    "load_balancing_alpha_0.001": "#d62728",
-    "run-1-maxVio": "#9467bd",
+    "random_balancing_24H": "#1f77b4",
+    "load_balancing_u0.001_24H": "#ff7f0e",
+    "loss_free_balancing_sigmoid_u0.01_24H": "#2ca02c",
+    "load_balancing_u0.01_24H": "#d62728",
 }
 
 # ---------------------------------------------------------------------------
@@ -51,7 +48,7 @@ needs_download = [n for n in RUN_NAMES if not (CACHE_DIR / f"{n}.parquet").exist
 name_to_run = {}
 if needs_download:
     print(f"Runs not cached: {needs_download} — connecting to wandb …")
-    api = wandb.Api()
+    api = wandb.Api(timeout=120)
 
     try:
         runs_iter = api.runs(PROJECT)
@@ -147,8 +144,12 @@ for name in RUN_NAMES:
         df = pd.read_parquet(cache_path)
     elif name in name_to_run:
         print(f"Downloading history for {name!r} …")
-        df = name_to_run[name].history(samples=50_000)
-        df.to_parquet(cache_path)
+        try:
+            df = name_to_run[name].history(samples=10_000)
+            df.to_parquet(cache_path)
+        except Exception as e:
+            print(f"ERROR downloading {name!r}: {e} — skipping")
+            continue
     else:
         print(f"WARNING: {name!r} not cached and not found in wandb — skipping")
         continue
@@ -247,7 +248,7 @@ for name in RUN_NAMES:
 has_maxvio = len(maxvio_data) > 0
 print(f"MaxVio available for: {list(maxvio_data.keys())}\n")
 
-n_plots = 5 if has_maxvio else 4
+n_plots = 4 if has_maxvio else 3
 fig, axes = plt.subplots(n_plots, 1, figsize=(8, 3.5 * n_plots), sharex=True)
 
 
@@ -271,24 +272,9 @@ ax.set_title("Smoothed Perplexity vs Step", fontsize=12, fontweight="bold")
 ax.legend()
 ax.grid(True, alpha=0.3, linewidth=0.5)
 
-# --- Plot 2: Cross-Entropy Loss ---
+# --- Plot 2: Relative CE Loss vs Random Balancing baseline ---
+BASELINE = "random_balancing_24H"
 ax = axes[1]
-for name in RUN_NAMES:
-    if name not in data:
-        continue
-    df = data[name]
-    steps = df[step_key] if step_key and step_key in df.columns else df.index
-    ce = smooth(df[loss_key].astype(float))
-    ax.plot(steps, ce, label=LABELS[name], color=COLORS[name], linewidth=1.2)
-
-ax.set_ylabel("Cross-Entropy Loss")
-ax.set_title("Smoothed Cross-Entropy Loss vs Step", fontsize=12, fontweight="bold")
-ax.legend()
-ax.grid(True, alpha=0.3, linewidth=0.5)
-
-# --- Plot 3: Relative CE Loss vs Random Balancing baseline ---
-BASELINE = "random_balancing"
-ax = axes[2]
 if BASELINE in data:
     df_base = data[BASELINE]
     base_ce = smooth(df_base[loss_key].astype(float))
@@ -309,8 +295,8 @@ ax.set_title("Relative CE Loss vs Random Balancing Baseline", fontsize=12, fontw
 ax.legend()
 ax.grid(True, alpha=0.3, linewidth=0.5)
 
-# --- Plot 4: Throughput ---
-ax = axes[3]
+# --- Plot 3: Throughput ---
+ax = axes[2]
 for name in RUN_NAMES:
     if name not in data:
         continue
@@ -328,9 +314,9 @@ ax.set_title("Throughput vs Step", fontsize=12, fontweight="bold")
 ax.legend()
 ax.grid(True, alpha=0.3, linewidth=0.5)
 
-# --- Plot 5: MaxVio_batch (load balance quality, cf. Wang et al. 2024 Fig.3) ---
+# --- Plot 4: MaxVio_batch (load balance quality, cf. Wang et al. 2024 Fig.3) ---
 if has_maxvio:
-    ax = axes[4]
+    ax = axes[3]
     for name in RUN_NAMES:
         if name not in maxvio_data:
             continue
