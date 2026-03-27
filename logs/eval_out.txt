@@ -1,0 +1,38 @@
+Loaded LR params: A_eta=1.1576, beta_eta=0.1529
+
+run_name                                    d   G  j      A  steps     C_actual         lr  budget
+----------------------------------------------------------------------------------------------------
+eval_d320_G01_A1_S1041                    320   1  1  12.5%   1041    1.998e+15 5.2977e-03       A
+eval_d384_G01_A1_S801                     384   1  1  12.5%    801    2.000e+15 5.2971e-03       A
+eval_d512_G01_A1_S520                     512   1  1  12.5%    520    1.999e+15 5.2974e-03       A
+eval_d320_G01_A2_S792                     320   1  2  25.0%    792    1.999e+15 5.2976e-03       A
+eval_d320_G01_A1_S2604                    320   1  1  12.5%   2604    4.998e+15 4.6048e-03       B
+eval_d384_G01_A1_S2002                    384   1  1  12.5%   2002    4.998e+15 4.6048e-03       B
+eval_d512_G01_A1_S1300                    512   1  1  12.5%   1300    4.998e+15 4.6049e-03       B
+eval_d384_G02_A1_S2001                    384   2  1  12.5%   2001    4.999e+15 4.6047e-03       B
+eval_d384_G01_A1_S4005                    384   1  1  12.5%   4005    9.999e+15 4.1416e-03       C
+eval_d512_G01_A1_S2601                    512   1  1  12.5%   2601    9.999e+15 4.1416e-03       C
+eval_d512_G02_A1_S2599                    512   2  1  12.5%   2599    9.997e+15 4.1417e-03       C
+eval_d384_G01_A2_S2970                    384   1  2  25.0%   2970    9.998e+15 4.1416e-03       C
+
+Wrote 12 eval configs → configs/eval/
+Wrote manifest → configs/eval/manifest.csv
+Total estimated GPU-hours (P100 fp32 peak): 1.9 h
+Realistic estimate (~10x below peak): ~19 h
+
+Isocompute groups (configs at same C_target):
+  Budget A (C_target=2.0e+15):
+    d=320  G=1  j=1  steps=1041  C_actual=1.998e+15  N_act=1.64e+07
+    d=384  G=1  j=1  steps=801  C_actual=2.000e+15  N_act=2.36e+07
+    d=512  G=1  j=1  steps=520  C_actual=1.999e+15  N_act=4.19e+07
+    d=320  G=1  j=2  steps=792  C_actual=1.999e+15  N_act=2.87e+07
+  Budget B (C_target=5.0e+15):
+    d=320  G=1  j=1  steps=2604  C_actual=4.998e+15  N_act=1.64e+07
+    d=384  G=1  j=1  steps=2002  C_actual=4.998e+15  N_act=2.36e+07
+    d=512  G=1  j=1  steps=1300  C_actual=4.998e+15  N_act=4.19e+07
+    d=384  G=2  j=1  steps=2001  C_actual=4.999e+15  N_act=2.36e+07
+  Budget C (C_target=1.0e+16):
+    d=384  G=1  j=1  steps=4005  C_actual=9.999e+15  N_act=2.36e+07
+    d=512  G=1  j=1  steps=2601  C_actual=9.999e+15  N_act=4.19e+07
+    d=512  G=2  j=1  steps=2599  C_actual=9.997e+15  N_act=4.19e+07
+    d=384  G=1  j=2  steps=2970  C_actual=9.998e+15  N_act=4.13e+07
